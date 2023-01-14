@@ -15,7 +15,7 @@ declare global {
 
 const isProduction = process.env.NODE_ENV === 'production'
 
-const Analytics = () => {
+const AnalyticsTP = () => {
   return (
     <>
       {isProduction && siteMetadata.analytics.plausibleDataDomain && <Plausible />}
@@ -26,4 +26,4 @@ const Analytics = () => {
   )
 }
 
-export default Analytics
+export default AnalyticsTP
