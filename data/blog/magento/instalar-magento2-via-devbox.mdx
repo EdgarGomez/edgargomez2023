@@ -1,0 +1,64 @@
+---
+title: 'Instalar Magento 2 via DevBox para desarrollo en local'
+date: '2017-02-08'
+summary: 'Magento 2 DevBox es un paquete montado con Docker con el que tan solo ejecutando un script nos instalará un entorno local completo para empezar a trabajar con Magento 2.'
+draft: false
+tags: ['Magento2']
+---
+
+![Instalar Magento 2 con DevBox para desarrollo local](/static/images/instalar-magento2-via-devbox/installing-magento.png)
+
+## Introducción
+
+**Magento 2** **DevBox** es un paquete montado con **Docker** con el que tan solo ejecutando un script nos instalará un entorno local completo para empezar a trabajar con **Magento 2**. Este paquete viene con el siguiente software preinstalado:
+
+- Debian GNU/Linux 8 (jessie)
+- Apache 2.4.10
+- PHP 7.0.12
+- MySQL 5.634
+
+Para poder trabajar es necesario tener el sistema Mac OS Yosemite o superior, o el sistema operativo Windows 10 Pro 64bits.
+
+## Docker
+
+![Magento 2 DevBox Docker](/static/images/instalar-magento2-via-devbox/docker-300x268.png)
+
+**Docker** es un gestor de contenedores. En un contenedor puedes instalar lo que quieras, por ejemplo un entorno de desarrollo con todos los requisitos que comentaba arriba. Estos contenedores se pueden compartir e instalar tantas veces como se desee haciendo muy fácil que un grupo de usuarios tengan el mismo software funcionando con las mismas versiones o un equipo de desarrollo trabajen bajo el mismo sistema. Para descargar e instalar **Docker** vamos a esta url [https://www.docker.com/products/overview](https://www.docker.com/products/overview) y seleccionamos el que haga referencia a nuestro sistema operativo.
+
+_Nota:_ este tutorial se ha hecho con Mac OS. Los pasos en un Windows serán muy similares pero no tienen porqué ser iguales. Una vez descargado el fichero Docker.dmg hacemos click y se siguiendo los pasos dejaremos **Docker** instalado en nuestro ordenador.
+
+## Magento 2 DevBox
+
+Para descargar el contenedor con **Magento 2** vamos a [https://magento.com/tech-resources/download](https://magento.com/tech-resources/download)
+
+![Magento 2 DevBox](/static/images/instalar-magento2-via-devbox/Captura-de-pantalla-2017-01-25-a-las-21.32.32.png)
+
+Le daremos al botón "Get Started" y una vez registremos usuario o nos conectemos veremos la siguiente pantalla:
+
+![Magento 2 DevBox Options](/static/images/instalar-magento2-via-devbox/Captura-de-pantalla-2017-01-25-a-las-21.34.00.png)
+
+Clickamos en la primera opción, "Create New Installation", y se desplegarán una serie de opciones más abajo. Para que la instalación sea lo más ligera posible no añadiremos extras como el Sample Data o funcionalidades como Elastic Search o Varnish. Simplemente marcamos el sistema operativo, dejamos la versión community y añadimos nuestras claves.
+
+### Access Keys
+
+Las access keys son necesarias para que composer pueda registrar aplicaciones, el sample data, etc. La forma de conseguirlas es muy sencilla. Entrado en [https://www.magentocommerce.com/magento-connect/customer/account/login/](https://www.magentocommerce.com/magento-connect/customer/account/login/) verás que a la izquierda una vez conectado hay un menú. Entras en "Secure Keys" y le das al botón "Generate new" poniendo primero un nombre (no tiene ningún valor). Con esto ya tienes tus claves, la pública es el equivalente al "user name" y la privada es equivalente al "password". Una vez tengas todas las opciones dale a "Download DevBox Installer".
+
+## Instalando Magento 2 DevBox
+
+Se habrá descargado un .zip que puedes mover a tu carpeta de proyectos y descomprimir. Verás una carpeta con nombre muy largo del tipo "build-522265adfa0f6b1cd93433fe9ab2f3d3". Entre desde una terminal en ella y ejecuta `./m2devbox-init.sh` Veremos que en la terminal aparece información sobre el proceso de instalación. Es posible que si has seguido el tutorial de [instalar Magento 2 en MAMP](http://edgargomez.local/es/instalar-magento-2-en-mamp-pro/) te acabe dando un error similar al siguiente:
+
+![Magento 2 DevBox error](/static/images/instalar-magento2-via-devbox/Captura-de-pantalla-2017-01-25-a-las-22.51.36.png)
+
+Para resolverlo abrimos las preferencias de **Docker** y en la pestaña de "Files sharing" añadimos la ruta donde MAMP gestiona los proyectos /Applications/MAMP/htdocs, guardamos y reiniciamos **Docker**.
+
+![Magento 2 DevBox Docker Preferences](/static/images/instalar-magento2-via-devbox/Captura-de-pantalla-2017-01-25-a-las-23.04.30.png)
+
+Volvemos a ejecutar el comando `./m2devbox-init.sh` y veremos que todo funciona bien ahora. Te da tiempo a tomarte un café mientras se instala todo. Finalmente, si todo ha ido bien y después de un buen rato viendo como sucedían instalaciones de paquetes y módulos en la terminal deberías de ver un mensaje similar al siguiente:
+
+![](/static/images/instalar-magento2-via-devbox/devboxmagento.png)
+
+Verás que se ha asignado una ip local con un puerto específico. Entrando a esa dirección verás la tienda de **Magento 2** y entrando con las credenciales verás el backoffice.
+
+## Posibles problemas
+
+Es posible que te surja algún problema que no me haya pasado a mi así que puedes comentarlo más abajo. A mi, en concreto, me pasaba que el **Magento 2 DevBox** intentaba instalar la versión 2.1.4 de **Magento 2** cuando solo estaba hasta la 2.1.3\. Editando el archivo docker-compose.yml cambié la versión y se instalo perfectamente. Ten en cuenta que desde este mismo archivo se pueden modificar otras muchas opciones.

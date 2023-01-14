@@ -1,0 +1,92 @@
+---
+title: 'Cuenta atrás - Unity 3D Playground'
+date: '2017-05-14'
+summary: 'En esta entrada vamos a montar un reloj digital, es decir, un texto que muestre la hora actual con el siguiente formato: hora:minutos:segundos.'
+draft: false
+tags: ['Unity', 'C#']
+---
+
+![Countdown](/static/images/cuenta-atras-unity3d-playground/og_countdown.png)
+
+## Introducción a la Cuenta Atrás
+
+En esta entrada vamos a montar una **cuenta atrás**, es decir, un texto que muestre un resta de segundos hasta llegar a 0 y cambiar el mensaje.
+
+![MAMP PRO](/static/images/reloj-digital-unity3d-playground/digitalclock.gif)
+
+## Elementos y configuración
+
+Creamos un nuevo proyecto de **Unity 3D**, puede ser 3D o 2D. Si es 3D marcaremos la opción de vista 2D. Guardamos la escena con el nombre CountDown.
+
+Añadimos un texto en la vista de jerarquía de tipo UI > Text. Al ser el primer elemento de UI  en existir en esta escena se crearán automáticamente el Event System y el Canvas.
+
+Dentro del Canvas está nuestro texto que podemos renombrar por **Cuenta atrás** clicando sobre el. Aprovechamos para añadir las siguientes configuraciones:
+
+- Texto: "Countdowns seconds remaining ="
+- Font size: 20
+- Horizontal overflow: overflow
+- Vertical overflow: blanco
+- Color: Blanco
+
+En la propiedad Rect Transform clicamos en el cuadro (anchor presets) y manteniendo Shift+Alt marcamos la opción Center-Top.
+
+A continuación y aunque no es necesario creamos una carpeta Scripts y dentro creamos una nuevo Script y lo llamamos CountDown.
+
+Asignamos el Script como componente de nuestro objeto texto. O bien lo arrastramos o bien añadimos el componente desde el botón añadir componente del objeto.
+
+## Código
+
+Abrimos el fichero y añadimos el siguiente código:
+
+```cs:CountDown.cs
+using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+using System;
+
+public class CountDown : MonoBehaviour {
+    private Text textClock;
+    private float countdownTimerDuration;
+    private float countdownTimerStartTime;
+
+    void Start() {
+        textClock = GetComponent<Text>();
+        CountdownTimerReset(5);
+    }
+
+    void Update() {
+        // default - timer finished
+         string timerMessage = "countdown has finished";
+         int timeLeft = (int)CountdownTimerSecondsRemaining();
+         if (timeLeft > 0) timerMessage = "Countdown seconds remaining = " + LeadingZero( timeLeft );
+         textClock.text = timerMessage;
+    }
+
+    private void CountdownTimerReset (float delayInSeconds) {
+        countdownTimerDuration = delayInSeconds;
+        countdownTimerStartTime = Time.time;
+    }
+
+    private float CountdownTimerSecondsRemaining () {
+        float elapsedSeconds = Time.time - countdownTimerStartTime;
+        float timeLeft = countdownTimerDuration - elapsedSeconds;
+        return timeLeft;
+    }
+
+    private string LeadingZero (int n) { return n.ToString().PadLeft(2, '0'); }
+}
+```
+
+Hay una variable, textClock , que referencia al objeto Texto donde queremos mostrar la cuenta atrás.
+
+El método CountdownTimerReset () registra en las variables el número de segundos que quedan y cuando ha sido llamado.
+
+El método CountdownTimerSecondsRemaining() devuelve un valor entero con los segundos que quedan para que acabe la **cuenta atrás**.
+
+Hay una variable, textClock , que referencia al objeto Texto donde queremos mostrar la hora. Está referencia la hacemos en el método Start() . Al método LeadingZero (int n)  le pasamos el número de segundos que quedan y si es una cifra de un solo dígito añade un cero a la izquierda. En el método Update() , que se ejecuta una vez por cada frame, le da valor a la variable timeMessage con un mensaje de que la **cuenta atrás** ha terminado. Se comprueba que los segundos que quedan son mayores que cero y si lo son con el método CountdownTimerSecondsRemaining() actualizamos el mensaje con los segundos restantes.
+
+Ya está, si damos al Play veremos en ejecución nuestra **Cuenta atrás**.
+
+> He decidido empezar un pequeño proyecto en el que recopilar pequeñas pruebas, tutoriales y proyectos de bajo calibre que puedan reutilizarse en proyectos más grandes. _Mi playground particular de **Unity 3D**_.
+
+El ejemplo completo junto con el resto del Playground lo puedes descargar desde el repo de [Github Unity 3D Playground](https://github.com/EdgarGomez/unity3dplayground).

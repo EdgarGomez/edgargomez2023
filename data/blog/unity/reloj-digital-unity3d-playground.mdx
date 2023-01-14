@@ -1,0 +1,74 @@
+---
+title: 'Reloj digital - Unity 3D Playground'
+date: '2017-05-11'
+summary: 'En esta entrada vamos a montar un reloj digital, es decir, un texto que muestre la hora actual con el siguiente formato: hora:minutos:segundos.'
+draft: false
+tags: ['Unity', 'C#']
+---
+
+![Reloj digital - Unity 3D Playground](/static/images/reloj-digital-unity3d-playground/relojdigital.jpg)
+
+## Introducción al Reloj Digital
+
+En esta entrada vamos a montar un **reloj digital**, es decir, un texto que muestre la hora actual con el siguiente formato: hora:minutos:segundos.
+
+![MAMP PRO](/static/images/reloj-digital-unity3d-playground/digitalclock.gif)
+
+## Elementos y configuración
+
+Creamos un nuevo proyecto de **Unity 3D**, puede ser 3D o 2D. Si es 3D marcaremos la opción de vista 2D. Guardamos la escena con el nombre DigitalClock.
+
+Añadimos un texto en la vista de jerarquía de tipo UI > Text. Al ser el primer elemento de UI  en existir en esta escena se crearán automaticamente el Event System y el Canvas.
+
+Dentro del Canvas está nuestro texto que podemos renombrar por Digital Clock clicando sobre el. Aprovechamos para añadir las siguientes configuraciones:
+
+- Texto: "Time:"
+- Font size: 20
+- Horizontal overflow: Overflow
+- Vertical overflow: Overflow
+- Color: Blanco
+
+En la propiedad Rect Transform clicamos en el cuadro (anchor presets) y manteniendo Shift+Alt marcamos la opción Center-Top.
+
+A continuación y aunque no es necesario creamos una carpeta Scripts y dentro creamos una nuevo Script y lo llamamos DigitalClock.
+
+Asignamos el Script como componente de nuestro objeto texto. O bien lo arrastramos o bien añadimos el componente desde el botón añadir componente del objeto.
+
+## Código
+
+Abrimos el fichero y añadimos el siguiente código:
+
+```cs:DigitalClock.cs
+using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+using System;
+
+public class ClockDigital : MonoBehaviour {
+    private Text textClock;
+
+    void Start () {
+        textClock = GetComponent<Text>();
+    }
+
+    void Update () {
+        DateTime time = DateTime.Now;
+        string hour = LeadingZero( time.Hour );
+        string minute = LeadingZero( time.Minute );
+        string second = LeadingZero( time.Second );
+        textClock.text = "Time: " + hour + ":" + minute + ":" + second;
+    }
+
+    string LeadingZero (int n) {
+        return n.ToString().PadLeft(2, '0');
+    }
+}
+```
+
+Hay una variable, textClock , que referencia al objeto Texto donde queremos mostrar la hora. Está referencia la hacemos en el método Start() . Al método LeadingZero (int n)  le pasamos las horas, minutos y segundos y los convierte de enteros a strings añadiendo un cero a la izquierda si no tienen 2 dígitos (09:33:22). En el método Update()  almacenamos la hora en una variable que partimos en tres variables distintas (horas, minutos, segundos) con time.Hour , time. Minute , time.Second  siempre pasándolas por LeadingZero. Finalmente, hacemos referencia a la variable texto de nuestro objeto Text y le concatenamos el resultado. Gracias a que el método Update se ejecuta en cada frame conseguimos que el texto se actualice modificando los segundos, minutos y horas de forma dinámica.
+
+Ya está, si damos al Play veremos en ejecución nuestro **Reloj digital**.
+
+> He decidido empezar un pequeño proyecto en el que recopilar pequeñas pruebas, tutoriales y proyectos de bajo calibre que puedan reutilizarse en proyectos más grandes. Mi playground particular de **Unity 3D**.
+
+El ejemplo completo junto con el resto del Playground lo puedes descargar desde el repo de [Github Unity 3D Playground](https://github.com/EdgarGomez/unity3dplayground).

@@ -1,0 +1,130 @@
+---
+title: 'Instalar Magento 2 en MAMP PRO'
+date: '2017-01-25'
+summary: 'Vamos a explicar como utilizar MAMP para dejar listo un entorno de desarrollo local para empezar a desarrollar en Magento 2.'
+draft: false
+tags: ['Magento2']
+---
+
+![Instalar Magento 2 en MAMP PRO](/static/images/instalar-magento2-mamp-pro/magento2-installation.jpg)
+
+## Introducción
+
+Vamos a explicar como utilizar **MAMP** para dejar listo un entorno de desarrollo local para empezar a desarrollar en **Magento 2**. Si no conoces que es **MAMP**, es el equivalente a XAMP, LAMP, AMPPS, etc, es decir un entorno preconfigurado que funciona bajo el sistema operativo Macintosh (Mac) con Mysql y PHP (entre otros lenguajes). Viene con una serie de configuraciones y puertos predeterminados para poder empezar a trabajar en sitios web sin esfuerzo ni configuraciones imposibles.
+
+Proporciona un control y gestión de versiones de PHP y MYSQL así como la localización de los logs o una fácil edición de los archivos de configuración como el php.ini. En definitiva, un software que facilita y acelera el desarrollo de aplicaciones en local.
+
+Dicho esto, nos vamos a centrar en instalar y seguir todos los pasos necesarios para dejar **MAMP** listo para cualquier tipo de proyecto y continuaremos en como dejar instalado y configurado en concreto **Magento 2**.
+
+_Nota:_ si no quieres pagar por **MAMP PRO** siguiendo
+los pasos del tutorial podrías instalar **Magento 2** en la versión gratuita.
+Algunos pasos variarán o directamente los puedes saltar. En algunos cambia
+simplemente la interfaz de **MAMP**. Si tienes cualquier duda, te respondo en
+los comentarios.
+
+## Instalar MAMP PRO
+
+*Nota:* para este tutorial he trabajado con la versión
+3.5.2 de **MAMP PRO**. Actualmente van por la 4. Os aconsejo si comprais por
+primera vez hacerlo sobre la última versión aunque algún paso pueda variar
+levemente.
+
+Para descargar la última versión: [https://www.mamp.info/en/downloads/](https://www.mamp.info/en/downloads/)
+
+Url para descargar la versión 3.5.2: [https://www.mamp.info/en/downloads/older-versions/](https://www.mamp.info/en/downloads/older-versions/)
+
+Comprar la última versión o anteriores si se desea: [https://sites.fastspring.com/mamp/product/mamp-pro?language=en&tags=en](https://sites.fastspring.com/mamp/product/mamp-pro?language=en&tags=en)
+
+Una vez instalado el software siguiendo los pasos e insertada la clave deberías ver la pantalla de **MAMP PRO**:
+
+![MAMP PRO](/static/images/instalar-magento2-mamp-pro/mamp1.png)
+
+Inicia los servicios dando al botón verde de la esquina superior derecha y verás que se marcan Apache y Mysql como iniciados. Ahora dale al botón de al lado WebsStart y si ves una página web de **MAMP** con información del entorno quiere decir que todo funciona como debe.
+
+A partir de ahora, los proyectos los trabajarás dentro de la carpeta que tiene **MAMP** preparada para alojarlos que se encuentra en la siguiente ruta: /Applications/MAMP/htdocs. Te recomiendo un acceso directo a htdocs para poder entrar de forma rápida.
+
+## Configuraciones extras
+
+Te recomiendo que le des un vistazo a todas las opciones. Sobretodo quédate con donde tienes lo logs de mysql, php, etc. Habilita el máximo de logs posibles ya que en este entorno vas a desarrollar. Por último en la pestaña de PHP selecciona PHP 5.6.10 en vez de cualquier otra versión. **Magento 2** funciona con PHP 5.6.10 y 7+ pero para esta guía uso la 5.6.10.
+
+## Instalar composer
+
+Composer es un gestor de paquetes y **Magento 2** ahora trabaja mano a mano con él por tanto hay que descargarlo e instalarlo. Desde la siguiente Url podemos hacerlo siguiente los comandos que nos indican [https://getcomposer.org/download/](https://getcomposer.org/download/).
+
+Cuando finalices con los comandos te recomiendo un último para que puedas usar composer de forma global solo con "composer" y no con "php composer.phar". Ejecuta lo siguiente desde el mismo directorio donde has ejecutado el resto:
+
+`mv composer.phar /usr/local/bin/composer`
+
+## Configurar PHP terminal
+
+Los Mac vienen con apache instalado de serie y seguramente tengáis también una configuración por defecto de dónde tiene que mirar el php. El problema al usar **MAMP** es que tiene una configuración propia encapsulada. Por tanto, el PHP que se está ejecutando en el servidor al cargar vuestros proyectos no es el mismo que ejecuta la terminal/consola. Esto hay que cambiarlo para que os funcionen bien los comandos que ejecutéis dentro de la aplicación y **Magento 2** precisamente funciona a base de comandos.
+
+El cambio es muy sencillo. Asegúrate de que has seleccionado en MAMP el PHP 5.6.10 descrito en la instalación de MAMP > Configuraciones extras.
+
+Antes de ejecutar los pasos, hacemos un pequeño setup que os podéis saltar si ya lo tenéis.
+
+## Instalando BREW y VIM
+
+Brew es un gestor de paquetes para Mac, en realidad es una herramienta inprescindible si tienes un Mac. Con brew puedes instalar paquetes de todo tipo, dependencias, etc. Para comprobar si ya tenemos Brew instalado ejecutamos en la terminal brew , si nos devuelve opciones es que lo tenemos, en ese caso lo actualizamos con brew update . En el caso de que no lo tengamos instalado podemos hacerlo siguiendo los pasos de este enlace [http://brew.sh/index_es.html](http://brew.sh/index_es.html).
+
+Una vez instalado Brew podemos instalar Vim que es un editor de texto. Si no os gusta Vim podéis configurar la terminal para abrir y editar ficheros con el que queráis. Los ejemplos a continuación serán con Vim. Para instalarlo desde la terminal escribimos brew install vim . Hecho, ahora para editar un archivo bastará con ejecutar "vim nombredelarchivo". Para saber comandos básicos sobre como usar Vim puedes visitar este enlace [http://bullium.com/support/vim.html](http://bullium.com/support/vim.html).
+
+## Ultimando configuraciones
+
+En terminal ejecutamos: `vim ~/.bash_profile`
+
+A este archivo le añadimos dos lineas:
+
+```bash
+alias composer="php /usr/local/bin/composer.phar"
+export PATH="/Applications/MAMP/bin/php/php5.6.10/bin:$PATH"
+```
+
+Guardamos el archivo y ejecutamos en la terminal:  `source ~/.bash_profile`
+
+Por último y a modo de comprobación ejecutamos en terminal `php --ini`  y deberiamos ver algo parecido a lo siguiente (las rutas apuntando a **MAMP**):
+
+![MAMP PRO](/static/images/instalar-magento2-mamp-pro/mamp2.png)
+
+Basicamente hemos creado y editado un archivo en nuestra "home" donde le indicamos donde un alias para ejecutar composer (solo para asegurarnos) y la ruta del php que tenemos que ejecutar que como ves está dentro de **MAMP**. Al ejecutar "source" lo que hacemos es "guardar" esta configuración. Con esto, evitamos que al ejecutar comandos php nos salten errores por utilizar versiones de php distintas.
+
+## Instalar Magento 2
+
+Hay varias formas de descargar **Magento 2**. Con [Composer](http://devdocs.magento.com/guides/v2.0/install-gde/install/sample-data-after-composer.html), descargando el [repositorio oficial de Github](https://github.com/magento/magento2) o descargando el paquete desde magento.com. Esta última manera es la que utilizo para esta guia. Entra en esta url [https://magento.com/tech-resources/download](https://magento.com/tech-resources/download) y descarga la última versión del software. Si te decides por alguna otra forma, los pasos siguiente son muy similares.
+
+Una vez descargado, movemos el fichero comprimido dentro de `/Applications/MAMP/htdocs` lo descomprimimos y lo renombramos a magento2.
+
+Entramos dentro de la carpeta **Magento 2** y ejecutamos:
+
+`composer install`
+
+![MAMP PRO](/static/images/instalar-magento2-mamp-pro/mamp3.png)
+
+Veréis algo parecido a esto (no tiene por que ser igual), fijaros que no sea un error y que ponga que se han cargado los repositorios de composer, se han instalado dependencias y se han cargado los ficheros "autoload".
+
+## Creando un Virtualhost
+
+Este paso, tampoco es necesario para continuar, pero el tutorial seguirá usando las url's de un Virtualhost. Es aconsejable que sigas este punto también. Crear un virtualhost con **MAMP PRO** es muy sencillo.
+
+![MAMP PRO](/static/images/instalar-magento2-mamp-pro/mamp4.png)
+
+Siguiendo la imagen anterior, ve a la sección "Hosts" de **MAMP PRO**. Abajo a la izquierda dándole al símbolo "+" crearas una nueva entrada. Por defecto esa entrada usará el PHP que tengas configurado en **MAMP PRO**. Arriba a la derecha puedes darle un nombre, en este caso lo he llamado "magento2.dev". Lo último que falta apuntar a la carpeta donde está **Magento 2** y por último dale a "Guardar". **MAMP** preguntará si deseas reiniciar los servicios para que los cambios se hagan efectivos, dile que si. Una vez reiniciado **MAMP PRO** y si accedes a la siguiente url [http://magento2.dev:8888/](http://magento2.dev:8888/) deberías ver la pantalla del inicio de la instalación de **Magento 2**.
+
+## Creando la base de datos
+
+Desde la pestaña MySQL de **MAMP PRO** puedes ver que hay un apartado llamado "Administrar MySQL con". Por defecto **MAMP PRO** tiene instalado phpMyAdmin pero podéis gestionarlo también con Sequel Pro y MySQLWorkbench. Lo único que tienes que hacer es crear una nueva base de datos llamada magento2 con coalición UTF-8.
+
+## Instalando Magento 2
+
+Ahora si, ya lo tienes todo listo, si accedes a la url [http://magento2.dev:8888/](http://magento2.dev:8888/) y sigues todas las pantallas paso a paso acordándote de que al poner los datos de la base de datos tienes que, en el host poner `localhost:8889` al final verás una pantalla con una barra de progreso. Una vez acabe una pantalla te indicará que todo ha finalizado y podrás acceder tanto a la parte frontal de **Magento 2** como al backoffice con la Uri y los datos que hayas ingresado en el proceso.
+
+## Comandos útiles
+
+Antes de dar por finalizado el tutorial, vamos a probar que funcione la terminal. **Magento 2** tiene unas opciones que se gestionan mediante comandos. Desde la raíz de la instalación de **Magento 2** ejecutamos `php bin/magento` . Si todo funciona como es debido debería de devolvernos un listado de comandos con sus descripciones. Para usar cualquiera de esos comandos solo tienes que repetir la llamada anterior y añadirle el comando que quieras ejecutar. A estos comandos además se les puede pasar argumentos. Algunos de los comandos más útiles a la hora de desarrollar en **Magento 2** son:
+
+- Para poner la aplicación en modo developer `php bin/magento deploy:mode:set developer`
+- `php bin/magento module:disable` añadiendo el nombre del módulo lo deshabilitariamos y cambiando disable por enable lo habilitariamos.
+- Actualiza la aplicación y la base de datos. Si estás trabajando en un módulo este comando hará que **Magento 2** se entere de que existe. `php bin/magento setup:upgrade`
+- `php bin/magento sampledata:deploy` con esto y siguiendo las instrucciones que salen por pantalla se instalan en base de datos una buena cantidad de datos de prueba como productos, categorías, etc.
+
+Espero que este tutorial te haya servido para empezar a investigar y trabajar con **Magento 2**.

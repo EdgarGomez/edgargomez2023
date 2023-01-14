@@ -1,0 +1,89 @@
+---
+title: 'Unity3D Inteligencia artificial básica'
+date: '2017-01-18'
+summary: 'Vamos a trabajar el concepto de inteligencia artificial en Unity3D de una forma muy básica enfocándonos en la simplicidad que nos ofrece la herramienta con la opción Navigation.'
+draft: false
+tags: ['Unity', 'IA', 'C#']
+---
+
+![Inteligencia artificial basica](/static/images/unity3d-inteligencia-artificial-basica/basicai.jpg)
+
+Vamos a trabajar el concepto de inteligencia artificial en **Unity3D** de una forma muy básica enfocándonos en la simplicidad que nos ofrece la herramienta con la opción **Navigation**. Para llevar a cabo el tutorial te aconsejo que sigas cada punto en orden y pasando al siguiente solo si entiendes y funcionan los anteriores. Como puedes ver en el siguiente gif, al final del tutorial tendrás un laberinto donde un objeto encontrará a otro de forma automática.
+
+![Inteligencia artificial basica final](/static/images/unity3d-inteligencia-artificial-basica/basicaifinal.gif)
+
+---
+
+## Preparando la escena en Unity3D
+
+Creamos un nuevo proyecto 3D en **Unity3D** y guardamos la escena vacía inicial. En la ventana de jerarquía hacemos click derecho y añadimos 3D Object > Quad. Desde el inspector modificamos la escala a X = 20, Y = 20,  Z = 20 y lo dotamos de una rotación X = 90, Y = 0, Z = -90. Veremos que tenemos un cuadrado blanco a modo de suelo. Desde el inspector le cambiamos el nombre a Ground. Hasta el momento deberías ver algo similar a la siguiente imagen:
+
+![IA escena Unity3D](/static/images/unity3d-inteligencia-artificial-basica/img1-1024x306.png)
+
+---
+
+## Descargando y aplicando texturas
+
+Vamos a utilizar algunas texturas para que los objetos no parezcan tan simples y sean blancos. Usaremos un paquete gratuito que podéis utilizar para otros proyectos y que nos proporciona un buen número de texturas, en este caso, metálicas.  Busca en la asset store de **Unity3D** "Yughues Free Metal Materials" y filtra por "Free only", una vez abierta la página del asset solo tienes que darle al botón "Install" y luego aceptar la instalación y la importación de los assets.
+
+Cuando acabe deberías tener en tu vista de Proyecto una carpeta nueva llamada Metal textures pack.
+
+![IA Texturas Unity3D](/static/images/unity3d-inteligencia-artificial-basica/metaltexturespack.png)
+
+Vamos a la carpeta "pattern 40" y arrastramos la esfera, que es en realidad el material, a nuestro Quad. Verás que automáticamente se aplica la textura que en este caso es como una malla metálica azul eléctrico. Fíjate que al hacer click en los diferentes objetos de la carpeta "pattern 40" abajo del todo aparece la extensión. El .mat es el que identificado a un material. Por supuesto, puedes probar cada uno de los 42 materiales y poner el que quieras al suelo y objetos que añadiremos a continuación.
+
+## Añadiendo paredes al laberinto
+
+Vamos a añadir un cubo desde la vista de jerarquía con botón derecho > 3D Object > Cube. A este cubo le añadimos los siguiente parámetros:
+
+![IA Basic Cube Unity3D](/static/images/unity3d-inteligencia-artificial-basica/basicube.png)
+
+Aplicamos el material número 8 para que no sea blanco y se distinga bien de la malla azul que conforma el suelo. A partir de este cubo clonamos hasta tener 9 cubos en total que dispondremos sobre el suelo lo más parecido a la siguiente imagen:
+
+![IA Basic Preview Unity3D](/static/images/unity3d-inteligencia-artificial-basica/disposicioncubos.png)
+
+---
+
+## Calcular las zonas a recorrer
+
+Vamos a dejar listo la zona que haremos al un objeto recorrer en busca de otro. Para ello vamos al menú Window > Navigation. Se nos abrirá una nueva pestaña a la derecha, antes de tocar nada hay que seleccionar todos los cubos y nuestro Ground en la vista de jerarquía. Con todos los objetos seleccionados, en la ventana del Navigation marcamos la opción "Navigation Static". Si quieres echar un vistazo a las opciones en Bake verás que son para configurar un poco los márgenes de la malla. Para aplicar los cambios hay que clickar el botón que hay abajo llamado "Bake". Veremos como se marca en azul las zonas a recorrer, principalmente nuestra malla azul y las zonas superiores de los cubos.
+
+![IA Basic Zona Unity3D](/static/images/unity3d-inteligencia-artificial-basica/suelorecorrible.png)
+
+---
+
+## Creando al agente y al objetivo
+
+Añadimos una esfera que posicionaremos en X = 8, Y = 0.60, Z = -9. Le añadimos el material número 2 para identificarla bien de forma visual. Desde los componentes le añadimos Navigation > Nav Mesh Agent. Aparecerá un nuevo panel con opciones que por el momento no vamos a tocar pero que aconsejo jugar con ellas cuando acabemos el tutorial para tener otras velocidad, giros, etc. Llamaremos a la esfera Agente.
+
+Añadimos una capsula. La renombramos a Objetivo y le añadimos el material número 12. La posición de esta capsula es X = 8, Y = 1, Z = 8.5.
+
+Por último vamos a alinear la cámara. Partiendo en que tenemos la vista como en la imagen anterior. Clickamos en la "Main Camera" y desde el menú Game Object clickamos la opción "Align With View". Con esto conseguimos que al ejecutar el juego veamos lo mismo que hemos estado viendo hasta ahora, una vista aerea de nuestro laberinto. Deberías ver todos los objetos de la siguiente manera:
+
+![IA Basic Vista aerea Unity3D](/static/images/unity3d-inteligencia-artificial-basica/vistaerea.png)
+
+---
+
+## Añadiendo código y probando
+
+Por último vamos a añadir un Script muy básico para que se produzca el efecto de búsqueda. Cuando ejecutemos el juego, lo que ocurrirá es que el Agente recorrerá el laberinto en busca del Objetivo hasta llegar a su misma base. Creamos un nuevo script y lo llamamos MovementScript en C#. El código a continuación lo que hace es instanciar al agente de navegación y usar la función nativa de **Unity3D** Start() para indicarle cual es su objetivo. Se instancia también un Gameobject público donde asignaremos la capsula objetivo.
+
+```cs:MovementScript.cs
+using UnityEngine;
+using System.Collections;
+public class MovementScript : MonoBehaviour {
+    public GameObject destino;
+    private UnityEngine.AI.NavMeshAgent agenteDeNavegacion;
+    // Use this for initialization
+    void Start ( ) {
+        agenteDeNavegacion = gameObject.GetComponent<UnityEngine.AI.NavMeshAgent> ( );
+        agenteDeNavegacion.SetDestination ( destino.transform.position );
+    }
+}
+```
+
+Añadimos este Script a nuestro Agente y arrastramos desde la jerarquía el objetivo hasta el campo Destino que aparece dentro del area del Script. Si haces click al botón "play" de Unity3D deberías ver la escena con la esfera recorriendo nuestra malla azul esquivando las paredes y llegando finalmente hasta la cápsula.
+
+![Inteligencia artificial basica final](/static/images/unity3d-inteligencia-artificial-basica/basicaifinal.gif)
+
+Espero que te haya servido este tutorial para ver con que facilidad podemos añadir una opción que parece tan complicada como es que un objeto encuentre a otro en un mapa. No dudes en comentar tus dudas para que pueda también mejorar el contenido.

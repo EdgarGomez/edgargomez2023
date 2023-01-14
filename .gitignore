@@ -8,9 +8,6 @@
 # testing
 /coverage
 
-# blog
-/data/blog
-
 # next.js
 /.next/
 /out/

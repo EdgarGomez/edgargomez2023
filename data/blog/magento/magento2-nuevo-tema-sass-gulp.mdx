@@ -1,0 +1,196 @@
+---
+title: 'Magento 2 Nuevo tema usando Sass y Gulp'
+date: '2017-12-01'
+summary: 'El objetivo es crear un tema propio que extienda de Magento Blank y que utilice Sass con Gulp.'
+draft: false
+tags: ['Magento2']
+---
+
+![Magento 2 Nuevo tema usando Sass y Gulp](/static/images/magento2-nuevo-tema-sass-gulp/magento2.png)
+
+## Introducción: Less y no Sass en Magento 2
+
+![Magento 2 Gulp](/static/images/magento2-nuevo-tema-sass-gulp/gulp-134x300.png)
+Desde que salió **Magento 2** ha habido algo de polémica respecto al tema **Less**
+y **Sass**. El por que de que **Magento 2** optase por utilizar Less quedo claro
+en los posts de algunos de los desarrolladores: no fué una decisión por ser mejor
+si no por la calidad y estabilidad que habían en el momento de adaptar y desarrollar
+la parte frontal del framework por parte de **Less** y no por parte de **Sass**.
+Hace meses (años) que **Sass** ha ganado terreno y cada vez más y mucho desarrolladores
+han pedido una forma sencilla de migrar de **Less** a **Sass** y en **Magento** parece
+que han escuchado esas peticiones y ya hay herramientas suficientes para trabajar
+con **Sass y Gulp**. Hay un repositorio muy conocido sobre este tema que es el de
+Snowdog, donde hace una copia del tema base de **Magento 2** "Blank" donde soporta
+**Sass**. Para ello utiliza otro repositorio donde hay unos paquetes de herramientas
+para compilar, etc. [Repositorio de Snowdog Blank theme](https://github.com/SnowdogApps/magento2-theme-blank-sass).
+[Repositorio de Frontools](https://github.com/SnowdogApps/magento2-frontools). De
+todas formas, en este tutorial, no utilizamos estas herramientas que ya llevan un
+tiempo generadas. Vamos a partir de la base de la documentación oficial de **Magento
+2** que hace unos meses se actualizo y nos permite empezar a utilizar **Sass** sin
+mucho esfuerzo.
+
+## Objetivo
+
+El objetivo es crear un tema propio que extienda de **Magento** Blank y que utilice **Sass con Gulp**. Este tutorial se realiza en un Mac.
+
+## Crear un tema de Magento 2
+
+- Creamos una carpeta llamada Empresa en app/design/frontend
+- Creamos una carpeta llamada Mitema en app/design/frontend/Empresa
+- Creamos un fichero "theme.xml" con el siguiente contenido:
+
+```xml
+<theme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Config/etc/theme.xsd">
+     <title>Mitema</title>
+     <parent>Magento/blank</parent>
+     <media>
+         <preview_image>web/images/logo.png</preview_image>
+     </media>
+ </theme>
+```
+
+- Creamos un fichero "registration.php" con el siguiente contenido:
+
+```php:registration.php
+<?php
+\Magento\Framework\Component\ComponentRegistrar::register(
+    \Magento\Framework\Component\ComponentRegistrar::THEME,
+    'frontend/Empresa/Mitema',
+    __DIR__
+);
+```
+
+- Creamos un fichero "package.json" con el siguiente contenido:
+
+```json:package.json
+{
+  "author": "Magento Commerce Inc.",
+  "description": "Magento node modules dependencies for local development",
+  "version": "1.0.0",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "gulp-install": "^1.1.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-notify": "^3.0.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-sass": "^3.1.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
+```
+
+- Creamos un fichero "gulpfile.js" con el siguiente contenido:
+
+```js:gulpfile.js
+var gulp = require('gulp'),
+  sass = require('gulp-sass'),
+  plumber = require('gulp-plumber'),
+  notify = require('gulp-notify');
+
+var config = {
+  src: './web/css/*.scss',
+  dest: './web/css/'
+};
+
+// Error message
+var onError = function (err) {
+  notify.onError({
+    title: 'Gulp',
+    subtitle: 'Failure!',
+    message: 'Error: <%= error.message %>',
+    sound: 'Beep'
+  })(err);
+
+  this.emit('end');
+};
+
+// Compile CSS
+gulp.task('styles', function () {
+  var stream = gulp
+    .src([config.src])
+    .pipe(plumber({ errorHandler: onError }))
+    .pipe(sass().on('error', sass.logError));
+
+  return stream.pipe(gulp.dest('./web/css/'));
+});
+```
+
+- Creamos el directorio "web" y dentro dos directorios más: "css" e "images" en el cual podéis poner una imagen "logo.png" a vuestro gusto.
+- Creamos en la raiz del tema, es decir, Empresa/Mitema un directorio "Magento_Theme" con un subdirectorio "layout" y dentro un fichero "default_head_blocks.xml" con el siguiente contenido:
+
+```xml:default_head_blocks.xml
+  <page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+  >
+    <head>
+      <css src="css/styles.css" />
+    </head>
+  </page>
+```
+
+Bien, hemos dejado todo listo a falta de los últimos cambios e instalación de **Gulp**.
+![Magento 2 Sass](/static/images/magento2-nuevo-tema-sass-gulp/sass-300x225.png)
+Primero explicamos que es lo que hemos hecho. Habéis creado un tema dentro de vuestro Vendor Empresa llamado Mitema. Lo habéis declarado en el fichero theme.xml, con esto **Magento 2** ya sabe que este tema existe. Todo lo que influye a nivel de front se pone dentro de la carpeta web, en nuestro caso para este ejemplo solo hemos creado las carpetas css e images pero también podriais incluir otras como js. Dentro de la carpeta images hemos metido una imagen logo.png a la cual se hace referencia en theme.xml y que es la imagen que define el tema en el backoffice de **Magento 2**. Más adelante vemos donde. Hemos creado el fichero registration.php que todos los paquetes ya sean temas o plugins deben llevar en **Magento 2** para que al lanzar la orden setup:upgrade el sistema lo detecte. Y hemos creado el fichero package.json en el cual hacemos referencia a gulpfile.js en el cual configuramos de forma básica como queremos que funcione **Gulp**. En este caso le decimos que en la carpeta css tendremos un archivo styles.scss y cuando compilemos lo pintará en style.css.
+
+## Instalando Gulp y compilando CSS
+
+Para instalar **Gulp** y hacerlo funcionar necesitamos el comando "npm" que viene con "node". Para instalar node necesitamos brew. Si no lo tenéis en vuestro sistema, podéis instalarlo siguiendo los pasos desde este enlace [https://brew.sh/index_es.html](https://brew.sh/index_es.html). Una vez instalado brew ejecutamos `brew install node` y esperamos a que termine. Cuando acabe podéis probar que funcione tanto node como npm ejecutando `node -v` y `npm -v` que deberían de devolver la versión instalada. Ejecutamos los siguientes comandos:
+
+- `npm install gulp`
+- `npm install gulp-sass`
+- `npm gulp notify`
+- `npm gulp plumber`
+
+Si os faltase alguno, al compilar os daría un error parecido a estos:
+
+```bash
+module.js:538
+throw err;
+^
+
+Error: Cannot find module 'gulp-plumber'
+at Function.Module._resolveFilename (module.js:536:15)
+at Function.Module._load (module.js:466:25)
+at Module.require (module.js:579:17)
+at require (internal/module.js:11:18)
+at Object.<anonymous> (/magento2/app/design/frontend/Empresa/Mitema/gulpfile.js:4:21)
+at Module._compile (module.js:635:30)
+at Object.Module._extensions..js (module.js:646:10)
+at Module.load (module.js:554:32)
+at tryModuleLoad (module.js:497:12)
+at Function.Module._load (module.js:489:3)
+```
+
+Una vez instalado **Gulp** vamos a crear dos fichero **Sass**  en web/css styles.scss y \_colors.scss. En \_colors.scss añadimos lo siguiente `$color-red: red;` y en styles.scss lo siguente:
+
+```css:styles.scss
+@import '_colors';
+
+body {
+  background-color: $color-red;
+}
+```
+
+Ejecutamos el comando `gulp styles` y deberiamos ver algo como esto:
+
+```bash
+  [17:22:33] Using gulpfile
+  ~/magento/app/design/frontend/Empresa/Mitema/gulpfile.js [17:22:33] Starting
+  'styles'... [17:22:33] Finished 'styles' after 53 ms
+```
+
+Si nos fijamos en la carpeta css veremos que se ha creado el archivo styles.css y en su interior tenemos compilado el código css que añade el valor de la variable red a nuestro código de styles.scss.
+
+## Activando el tema en Magento 2
+
+Desde el backoffice vamos a Content > Themes y veremos que uno de los temas del listado es el nuestro: Mitema. Desde Content > Configuration podemos seleccionar la opción de store view e indicarle que utilice nuestro tema. Automaticamente veréis **Magento** sin el tema Luma con el que viene por defecto, en su lugar está el tema Mitema que es exactamente igual al Blank pero con todo el fondo rojo gracias a vuestro Css compilado con **Sass** y **Gulp**.
+
+---
+
+Si el tema no os aparece lanzad el comando `php bin/magento setup:upgrade` . Para resolver cualquier duda podéis usar los comentarios.

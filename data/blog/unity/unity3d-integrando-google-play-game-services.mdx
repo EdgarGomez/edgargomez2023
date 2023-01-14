@@ -1,0 +1,210 @@
+---
+title: 'Unity 3D Integrando Google Play Game Services'
+date: '2017-10-08'
+summary: 'Vamos a crear un proyecto muy sencillo en Unity3D que contendrá una escena con 6 botones desde los cuales ejecutaremos las acciones básicas de Google Play Game Services'
+draft: false
+tags: ['Unity', 'C#']
+---
+
+![Unity 3D Integrando Google Play Game Services](/static/images/unity3d-integrando-google-play-game-services/google-play-game-services.png)
+
+## Introducción
+
+Hace unos días puse **Google Play Game Services** en un juego que estoy desarrollando y, aunque al final todo ha ido bien, me sorprendió lo difusa y complicada que es la documentación y la información repartida en diversos tutoriales en vídeo y escrito, por no hablar de la cantidad de incidencias abiertas al respecto en páginas como los foros de **Unity** o **StackOverflow**. Por ese motivo escribo este tutorial, para tener una referencia clara donde siguiendo todos los pasos tendremos integrados en nuestro juego de **Unity3D** los **Google Play Game Services**.
+
+## Requisitos previos
+
+- **Android Studio** instalado con el último SDK.
+- Última versión de Java.
+- **Unity** preparado para usar el **Android SDK**.
+- Como mínimo Android 6.0 (API 23). Esto se instala desde el SDK Manager o desde Android Studio.
+- La librería de **Google Play Services**. Esto se instala desde el SDK Manager o desde Android Studio.
+- La librería de soporte de Android. Esto se instala desde el SDK Manager o desde Android Studio.
+
+Si tenéis alguna duda sobre como instalar Android Studio y los componentes comentados o como configurar **Unity** para trabajar con el Android SDK usad los comentarios. Si hubiesen muchas dudas al respecto haríamos un pequeño tutorial sobre esto.
+
+## El proyecto
+
+Vamos a crear un proyecto muy sencillo en **Unity3D** que contendrá una escena con 6 botones desde los cuales ejecutaremos las acciones básicas de **Google Play Game Services** como LogIn, guardar datos en un Leaderboard, ver el Leaderboard, desbloquear un logro y Logout. Antes de llegar a tener el proyecto funcionando pasaremos por todos los pasos necesarios de configuración tanto del plugin de **Unity** de **Google Play Game Services** como de la **Google Play Console** donde hay que dar de alta el juego. Comentaremos también una serie de trucos poco documentados y necesarios para que algunas acciones funcionen bien. La mecánica de la aplicación es sencilla, cada botón lanza una acción y el botón de More Points sumará puntos de 100 en 100 que luego podremos guardar con el botón Save leaderboard.
+
+## Iniciando el proyecto
+
+1.  Abrimos **Unity** y creamos un nuevo proyecto seleccionando que sea **2D** ya que nos interesa tener una pantalla sencilla con los botones.
+2.  Descargamos el plugin oficial de **Google Play Game Services **desde este enlace [https://github.com/playgameservices/play-games-plugin-for-unity](https://github.com/playgameservices/play-games-plugin-for-unity) , hay que entrar en current build y descargar el zip. ![](/static/images/unity3d-integrando-google-play-game-services/githubgpgs-1.gif)
+3.  Desde **Unity** haremos click derecho en la carpeta Assets > Import package > Custom package y seleccionaremos el paquete que hemos descargado en el paso anterior. En el popup que aparece nos fijamos que esté todo seleccionado e importamos. 
+    ![](/static/images/unity3d-integrando-google-play-game-services/unityloadgpgs.gif)
+4.  Preparamos la interfaz para que se visualice en portrait 2:3, añadimos un Canvas que contenga un texto y los 6 botones. Lo preparamos todo lo más parecido a la siguiente imagen 
+    ![](/static/images/unity3d-integrando-google-play-game-services/distribucionbotones.png)
+5.  Por último en este apartado, guardamos nuestra escena con el nombre que queramos y vamos a File > Build Settings... Primero cambiaremos, si no lo tenemos ya, a Android clickando en su icono y dándole al botón Switch Platform y arrastraremos nuestra escena al hueco de Scenes in Build.
+
+## Añadiendo nuestro juego en la Google Play Console
+
+1.  Vamos a este enlace [https://play.google.com/apps/publish/](https://play.google.com/apps/publish/) y accedemos con nuestra cuenta de Google. Veremos una interfaz con un menú a la izquierda. Clickamos en Servicios de Juegos y al botón de Añadir Juego Nuevo. Nos aparecerá un popup donde mantendremos la opción de "Aún no utilizo las API de Google en mi juego", pondremos el nombre de nuestro juego,  seleccionaremos como categoría Casual y le damos a Seguir.
+2.  Vamos a crear una keystore. A grandes rasgos es la identidad que conectará de forma segura vuestro juego con la aplicación de **Google Play Console**. Esta Keystore está firmada con una clave SHA1 que ahora generaremos y que deberemos utilizar en el siguiente paso del tutorial. Vamos el editor de **Unity**, File > Build Settings... y en la pantalla que aparece le damos al botón Player Settings. En la parte derecha, en el inspector podemos ver ahora las Player Settings, nos interesa el apartado con el icono de android, en concreto el último que aparece Publishing Settings. Marcamos Create a new Keystore, le damos a Browse Keystore y nos pedirá que le pongamos un nombre y la guardemos. Elegid bien donde la estáis guardando por que váis a necesitar esa ruta. Añadimos un password, lo repetimos y en Alias seleccionamos la Keystore que acabamos de crear y ponemos el password. Ahora nos falta nuestra firma SHA1.
+3.  Abrimos una consola o terminal y vamos hasta donde tenemos instalado Java al directorio bin. En windows puede ser algo similar a esto variando la versión de Java que tengáis `C:\Program Files\Java\jdk1.7.0_09\bin` . A continuación ejecutamos el siguiente comando `keytool -list -v -keystore "C:\la\ruta" -alias tunombredekeystore -storepass tucontraseña -keypass tucontraseña` donde cambiaremos C:\la\ruta por la ruta donde habéis guardado vuestra Keystore, pondremos en alias el nombre que le  habéis dado y los passwords que habéis generado.
+    **Nota:** Si estás en Windows 10 para ejecutar este comando desde PowerShell tendréis que poner .\keytool y el resto del comando.
+4.  Una vez ejecutado el comando os aparecerá en la terminal el resultado, copiad la clave SHA1.
+5.  Con nuestra clave copiada volvemos a la **Google Play Console **y estando dentro del juego que hemos añadido le damos al menú de la izquierda en Aplicaciones Vinculadas, seleccionamos Android y rellenamos los datos, en nombre del paquete pondremos algo como com.vuestronombre.nombredeljuego y pegamos nuestra clave SHA1.
+
+## Leaderboard y Rewards
+
+Ya hemos pasado la parte más dura. Ahora vamos a crear un Leaderboard y un reward. Para el Leaderboard hay que clickar en Marcadores y darlo de alta, ponemos un nombre y el resto de opciones por defecto. Para el Reward lo mismo, clickando en Logros, le ponemos un nombre y especificamos cuantos puntos ganaremos al desbloquearlo. Si queréis que se vea todo más bonito podéis subir alguna imagen en el tamaño que os especifican. Estas imágenes son las que se verán luego al desbloquearlos. Fijaros que tanto el leaderboard como el logro tienen un código específico una vez creados, estos códigos los usaremos pronto.
+
+## Programando los botones
+
+Desde el editor de **Unity **vamos a crear un C# Script que llamaremos GpgsScript. En los comentarios están las explicaciones de cada función. Añadimos en las directivas _using_ las siguientes:
+
+```cs
+  using GooglePlayGames; using GooglePlayGames.BasicApi;
+  using UnityEngine.SocialPlatforms; using UnityEngine.UI;
+```
+
+Dos variables de clase:
+
+```cs
+int points = 0;
+public Text pointsText;
+```
+
+El método Start:
+
+```cs
+void Start () {
+    // recommended for debugging:
+    PlayGamesPlatform.DebugLogEnabled = true;
+
+    // Activate the Google Play Games platform
+    PlayGamesPlatform.Activate();
+}
+```
+
+El método LogIn:
+
+```cs
+    /// <summary>
+    /// Make Login and manage the succes or failure
+    /// </summary>
+    public void LogIn()
+    {
+        Social.localUser.Authenticate((bool success) =>
+        {
+            if (success)
+            {
+                Debug.Log("Login Sucess");
+            }
+            else
+            {
+                Debug.Log("Login failed");
+            }
+        });
+    }
+```
+
+El método mostrar Leaderboard. Comentada la forma de mostrar todos los marcadores activos, en uso la forma de mostrar uno concreto usando su código. Sustituir "CgkIuJGt07gTEAIQAQ" por vuestro código de leaderboard:
+
+```cs
+    /// <summary>
+    /// Shows Leaderboard
+    /// </summary>
+    public void OnShowLeaderBoard()
+    {
+        //Social.ShowLeaderboardUI (); // Show all leaderboard
+        PlayGamesPlatform.Instance.ShowLeaderboardUI("CgkIuJGt07gTEAIQAQ");
+    }
+```
+
+El método añadir puntuación al leaderboard, cambiad "CgkIuJGt07gTEAIQAQ" por vuestro código de leaderboard:
+
+```cs
+    /// <summary>
+    /// Adds score to Leaderboard
+    /// </summary>
+    public void addScoreLeaderBoard()
+    {
+        if (Social.localUser.authenticated)
+        {
+            Social.ReportScore(points, "CgkIuJGt07gTEAIQAQ", (bool success) =>
+            {
+                if (success)
+                {
+                    points = 0;
+                    pointsText.text = "Points: " + points;
+
+                }
+                else
+                {
+                    Debug.Log("Update Score Fail");
+                }
+            });
+        }
+    }
+```
+
+El método desbloquear logro, cambiad "CgkIuJGt07gTEAIQAg" por vuestro código de logro:
+
+```cs
+    /// <summary>
+    /// Unlock Reward
+    /// </summary>
+    public void rewardAchiv()
+    {
+        Social.ReportProgress("CgkIuJGt07gTEAIQAg", 200.0f, (bool success) => {
+            // handle success or failure
+        });
+    }
+```
+
+El método para sumar puntos:
+
+```cs
+    /// <summary>
+    /// Adding points
+    /// </summary>
+    public void morePoints ()
+    {
+        points = points + 100;
+        pointsText.text = "Points: " + points;
+    }
+```
+
+El método para desconectarse:
+
+```cs
+    /// <summary>
+    /// Log Out
+    /// </summary>
+    public void OnLogOut()
+    {
+        ((PlayGamesPlatform)Social.Active).SignOut();
+    }
+```
+
+Ahora asignamos desde **Unity** el script a la Main Camera arrastrando o desde el inspector añadiendo componente. Arrastramos el Texto al campo de texto. Y añadimos en cada botón la función que tiene que hacer.
+![Unity Google Play Game Services Botones Acciones](/static/images/unity3d-integrando-google-play-game-services/stepsbuttons.gif)
+
+## Build y testing de los Google Play Game Services
+
+Hemos llegado al final, solo nos queda hacer la Build de nuestro juego conectado a los **Google Play Game Services**. Os recomiendo que marquéis en File > Build Setting... la opción de Developments Build y Script Debugging. Antes de hacer la build, le damos el botón Player Settings y en el apartado Other Settings > Package Name ponemos el mismo que habéis puesto en la **Google Play Console** com.vuestronombre.nombredeljuego. Ahora si, hacemos la build que generará un .apk que debemos enviar a nuestro móvil e instalar.
+**Nota:** Para que la pantalla de leaderboard se vea tenemos que modificar el AndroidManifest.xml situado dentro de GooglePlayGames > Plugins > Android > GooglePlayGamesManifest.plugin y añadir lo siguiente antes del cierre de `</application>`
+
+```xml
+<pre class="lang:xhtml decode:true ">
+  <activity
+    android:name="com.google.games.bridge.NativeBridgeActivity"
+    android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+  />
+</pre>
+```
+
+![Unity AndroidManifest](/static/images/unity3d-integrando-google-play-game-services/androidmanifest.png)
+
+## Imágenes del resultado
+
+| ![Google Play Game Services LogIn](/static/images/unity3d-integrando-google-play-game-services/Screenshot_20171008-141828-169x300.png) | ![Google Play Game Services LogIn](/static/images/unity3d-integrando-google-play-game-services/Screenshot_20171008-141716-169x300.png) | ![Google Play Game Services Points](/static/images/unity3d-integrando-google-play-game-services/Screenshot_20171008-141722-169x300.png) | ![Google Play Game Services LogIn](/static/images/unity3d-integrando-google-play-game-services/Screenshot_20171008-141734-169x300.png) |
+| :------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------: |
+
+Podéis descargar el proyecto completo desde este enlace:
+[https://github.com/EdgarGomez/UnityGooglePlayGameServices](https://github.com/EdgarGomez/UnityGooglePlayGameServices)
+
+Cualquier duda o problema que os surja no dudéis en dejar un comentario y os atenderé
+lo antes posible.
